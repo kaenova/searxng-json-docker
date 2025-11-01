@@ -1,0 +1,42 @@
+# Web service in development branch (main)
+
+name: SearXNG JSON Docker Image CI
+
+on:
+  push:
+    branches: ['main']
+
+env:
+  # Please fill this
+  DOCKER_REPOSITORY: kaenova/searxng-json
+  DOCKER_REGISTRY: docker.io
+
+jobs:
+  Docker-Imaging:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Set TAGS environment variable
+        id: set_tags # Assign an ID to this step to reference its outputs if needed
+        run: |
+          # Get the current date and time in YYYYMMDD-HHmmss format
+          # For Linux/macOS runners:
+          DATETIME_TAG=$(date +'%Y%m%d-%H%M%S')
+          # For Windows runners, you would use something like:
+          # DATETIME_TAG=$(Get-Date -Format "yyyyMMdd-HHmmss")
+          echo "TAGS=$DATETIME_TAG" >> $GITHUB_ENV
+          echo "The 'TAGS' environment variable has been set to: $DATETIME_TAG"
+        
+      - name: Set up Docker
+        uses: crazy-max/ghaction-setup-docker@v3
+    
+      - name: Checkout latest code
+        uses: actions/checkout@v2
+
+      - name: Docker Login
+        run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username ${{ secrets.DOCKER_USER }} --password-stdin $DOCKER_REGISTRY
+
+      - name: Build Docker Image
+        run: docker build --tag "$DOCKER_REGISTRY/$DOCKER_REPOSITORY:$TAGS" --tag "$DOCKER_REGISTRY/$DOCKER_REPOSITORY:latest" -f dockerfile .
+
+      - name: Dockerhub Push
+        run: docker push "$DOCKER_REGISTRY/$DOCKER_REPOSITORY" --all-tags

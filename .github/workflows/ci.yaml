@@ -25,9 +25,6 @@ jobs:
           # DATETIME_TAG=$(Get-Date -Format "yyyyMMdd-HHmmss")
           echo "TAGS=$DATETIME_TAG" >> $GITHUB_ENV
           echo "The 'TAGS' environment variable has been set to: $DATETIME_TAG"
-        
-      - name: Set up Docker
-        uses: crazy-max/ghaction-setup-docker@v3
     
       - name: Checkout latest code
         uses: actions/checkout@v2
